@@ -1,0 +1,62 @@
+version: '3.8'
+
+services:
+  dexer:
+    depends_on: 
+      - roach-init
+    build:
+      context: .
+    container_name: dexer-api
+    hostname: dexer
+    networks:
+      - network-bridge
+    ports:
+      - 80:${PORT:-8080}
+    environment:
+      - PG_USER=${PG_USER:-operator}
+      # - PG_PASSWORD=${PG_PASSWORD:?Senha do Cockroach não definida}
+      - PG_HOST=${PG_HOST:-roach-db}
+      - PG_PORT=${PG_PORT:-26257}
+      - PG_DATABASE=${PG_DATABASE:-dexer}
+      - DATABASE_URL=${DATABASE_URL:?URL de conexão não definida}
+    deploy:
+      restart_policy:
+        condition: unless-stopped
+
+  roach:
+    image: cockroachdb/cockroach:latest
+    container_name: roach-db
+    hostname: roach
+    networks:
+      - network-bridge
+    ports:
+      - 26257:26257
+      - 8080:8080
+    volumes:
+      - roach-db:/cockroach/cockroach-data
+    command: start-single-node --cluster-name=node-1 --insecure
+    deploy:
+      restart_policy:
+        condition: unless-stopped
+
+  roach-init:
+    container_name: roach-init
+    hostname: roach-init
+    image: timveil/cockroachdb-remote-client:latest
+    environment:
+      - COCKROACH_HOST=roach-db:26257
+      - COCKROACH_INSECURE=true
+      - DATABASE_NAME=${PG_DATABASE:-dexer}
+      - DATABASE_USER=${PG_USER:-operator}
+      # - DATABASE_PASSWORD=${PG_PASSWORD:?Senha do Cockroach nao definida}
+    depends_on:
+      - roach
+    networks:
+      - network-bridge
+
+volumes:
+  roach-db:
+
+networks:
+  network-bridge:
+    driver: bridge
