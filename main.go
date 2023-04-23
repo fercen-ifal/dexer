@@ -97,7 +97,6 @@ func service() http.Handler {
 	v1Router := chi.NewRouter()
 	v1.RegisterRoutes(v1Router)
 
-	r.Get("/", v1.GetHomeApi)
 	r.Mount("/api/v1", v1Router)
 
 	log.Println("Servidor inicializado.")
