@@ -32,7 +32,7 @@ func ConnectToDatabase() (*pgxpool.Pool, error) {
 
 	// TODO: Remover teste SQL
 
-	_, err = pool.Query(context.Background(), "CREATE TABLE IF NOT EXISTS test (value STRING PRIMARY KEY)")
+	_, err = pool.Query(context.Background(), "CREATE TABLE IF NOT EXISTS test (value INT PRIMARY KEY)")
 	if err != nil {
 		log.Printf("Não foi possível criar tabela teste: %e", err)
 		return nil, err

@@ -17,7 +17,7 @@ type getHomeApiResponse struct {
 // ! Sistema de nomeação dos handlers:
 // ! método (iniciado de letra minúscula) + nome de referência + sufixo 'Api'
 
-func GetHomeApi(w http.ResponseWriter, r *http.Request) {
+func getHomeApi(w http.ResponseWriter, r *http.Request) {
 	res := new(getHomeApiResponse)
 
 	pool, err := models.ConnectToDatabase()

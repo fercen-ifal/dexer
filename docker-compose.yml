@@ -3,7 +3,7 @@ version: '3.8'
 services:
   dexer:
     depends_on: 
-      - roach-init
+      - postgres
     build:
       context: .
     container_name: dexer-api
@@ -12,50 +12,58 @@ services:
       - network-bridge
     ports:
       - 80:${PORT:-8080}
+    env_file:
+      - .env
     environment:
       - PG_USER=${PG_USER:-operator}
-      # - PG_PASSWORD=${PG_PASSWORD:?Senha do Cockroach não definida}
-      - PG_HOST=${PG_HOST:-roach-db}
-      - PG_PORT=${PG_PORT:-26257}
+      - PG_PASS=${PG_PASS:?Senha do banco de dados não definida}
       - PG_DATABASE=${PG_DATABASE:-dexer}
       - DATABASE_URL=${DATABASE_URL:?URL de conexão não definida}
     deploy:
       restart_policy:
         condition: unless-stopped
 
-  roach:
-    image: cockroachdb/cockroach:latest
-    container_name: roach-db
-    hostname: roach
+  postgres:
+    image: postgres:latest
+    container_name: postgres
+    hostname: postgres
     networks:
       - network-bridge
     ports:
-      - 26257:26257
-      - 8080:8080
+      - 5432:5432
+    environment:
+      - POSTGRES_USER=${PG_USER:-operator}
+      - POSTGRES_PASSWORD=${PG_PASS:?Senha do banco de dados não definida}
+      - POSTGRES_DB=${PG_DATABASE:-dexer}
     volumes:
-      - roach-db:/cockroach/cockroach-data
-    command: start-single-node --cluster-name=node-1 --insecure
+      - postgres:/var/lib/postgresql/data
     deploy:
       restart_policy:
         condition: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${PG_USER:-operator}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
-  roach-init:
-    container_name: roach-init
-    hostname: roach-init
-    image: timveil/cockroachdb-remote-client:latest
-    environment:
-      - COCKROACH_HOST=roach-db:26257
-      - COCKROACH_INSECURE=true
-      - DATABASE_NAME=${PG_DATABASE:-dexer}
-      - DATABASE_USER=${PG_USER:-operator}
-      # - DATABASE_PASSWORD=${PG_PASSWORD:?Senha do Cockroach nao definida}
-    depends_on:
-      - roach
+  migrate:
+    image: migrate/migrate:latest
+    container_name: migrate
+    hostname: migrate
     networks:
       - network-bridge
+    volumes:
+      - ./migrations:/migrations
+    command: ["-path", "/migrations", "-database", "${DATABASE_URL:?URL de conexão não definida}", "up", "3"]
+    links:
+      - postgres
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: on-failure
 
 volumes:
-  roach-db:
+  postgres:
 
 networks:
   network-bridge:
