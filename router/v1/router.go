@@ -1,7 +1,7 @@
 package v1
 
-import "github.com/go-chi/chi/v5"
+import "github.com/labstack/echo/v4"
 
-func RegisterRoutes(router *chi.Mux) {
-	router.Get("/", getHomeApi)
+func RegisterRoutes(router *echo.Group) {
+	router.GET("/", getHomeApi)
 }

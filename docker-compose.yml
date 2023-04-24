@@ -41,7 +41,7 @@ services:
       restart_policy:
         condition: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${PG_USER:-operator}"]
+      test: ["CMD-SHELL", "pg_isready -U ${PG_USER:-operator} -d ${PG_DATABASE:-dexer}"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -53,7 +53,7 @@ services:
     networks:
       - network-bridge
     volumes:
-      - ./migrations:/migrations
+      - ./migrations/:/migrations
     command: ["-path", "/migrations", "-database", "${DATABASE_URL:?URL de conexão não definida}", "up", "3"]
     links:
       - postgres

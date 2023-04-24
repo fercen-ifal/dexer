@@ -12,9 +12,9 @@ import (
 	"github.com/fercen-ifal/dexer/middlewares"
 	"github.com/fercen-ifal/dexer/models"
 	"github.com/fercen-ifal/dexer/router/v1"
-	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
 	"github.com/joho/godotenv"
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 )
 
 func main() {
@@ -81,23 +81,19 @@ func main() {
 func service() http.Handler {
 	log.Println("Iniciando servidor...")
 
-	r := chi.NewRouter()
+	r := echo.New()
 
 	// TODO: Add CORS policy
 
-	r.Use(middleware.RequestID)
-	r.Use(middleware.Logger)
-	r.Use(middleware.CleanPath)
-	r.Use(middleware.Recoverer)
-	r.Use(middleware.Compress(5))
-	r.Use(middleware.Heartbeat("/health"))
-	r.Use(middlewares.RequestIDHeader)
-	r.Use(middlewares.AppInfo)
+	r.Use(middleware.RequestID())
+	r.Use(middleware.Logger())
+	r.Use(middleware.Recover())
+	r.Use(middleware.Gzip())
+	r.Use(middlewares.RequestIDHeader())
+	r.Use(middlewares.AppInfo())
 
-	v1Router := chi.NewRouter()
+	v1Router := r.Group("/api/v1")
 	v1.RegisterRoutes(v1Router)
-
-	r.Mount("/api/v1", v1Router)
 
 	log.Println("Servidor inicializado.")
 
