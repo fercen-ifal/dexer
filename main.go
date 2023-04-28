@@ -10,7 +10,6 @@ import (
 	"time"
 
 	"github.com/fercen-ifal/dexer/middlewares"
-	"github.com/fercen-ifal/dexer/models"
 	"github.com/fercen-ifal/dexer/router/v1"
 	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
@@ -30,14 +29,6 @@ func main() {
 		log.Println("Variável PORT não possui valor definido!")
 		port = "8080"
 	}
-
-	// Inicia o banco de dados
-	
-	db, err := models.ConnectToDatabase()
-	if err != nil {
-		log.Fatalf("Não foi possível se conectar ao banco de dados: %e", err)
-	}
-	defer db.Close()
 
 	// Inicia o servidor no modo graceful
 
@@ -89,6 +80,7 @@ func service() http.Handler {
 	r.Use(middleware.Logger())
 	r.Use(middleware.Recover())
 	r.Use(middleware.Gzip())
+	r.Use(middleware.RemoveTrailingSlash())
 	r.Use(middlewares.RequestIDHeader())
 	r.Use(middlewares.AppInfo())
 

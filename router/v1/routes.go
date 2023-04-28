@@ -1,58 +1,48 @@
 package v1
 
 import (
-	"context"
-	"log"
 	"net/http"
 
-	"github.com/fercen-ifal/dexer/models"
 	"github.com/labstack/echo/v4"
 )
 
-type getHomeApiResponse struct {
-	Message string `json:"message,omitempty"`
-	Counter int    `json:"counter,omitempty"`
-}
-
-// ! Sistema de nomeação dos handlers:
-// ! método (iniciado de letra minúscula) + nome de referência + sufixo 'Api'
-
 func getHomeApi(c echo.Context) error {
-	res := getHomeApiResponse{}
-
-	log.Print("Criando pool...")
-	pool, err := models.ConnectToDatabase()
-	if err != nil {
-		log.Printf("Não foi possível se conectar ao banco de dados: %e", err)
-		res.Message = "Houve um erro ao tentar se conectar ao banco de dados."
-
-		return c.JSON(http.StatusOK, res)
+	res := struct {
+		Message    string `json:"message"`
+		AppName    string `json:"appName"`
+		ApiVersion uint8  `json:"apiVersion"`
+	}{
+		Message:    "API ativa e respondendo.",
+		AppName:    "Dexer",
+		ApiVersion: 1,
 	}
 
-	defer pool.Close()
+	return c.JSON(http.StatusOK, res)
+}
 
-	log.Print("Executando query...")
-	rows, err := pool.Query(context.Background(), "SELECT COUNT(*) FROM test")
+/* func getHomeApi(c echo.Context) error {
+	res := getHomeApiResponse{Message: ""}
+
+	client, err := infra.ConnectToDatabase()
 	if err != nil {
-		log.Printf("Não foi possível obter uma resposta da query: %e", err)
-		res.Message = "Houve um erro ao tentar se comunicar com o banco de dados."
-		res.Counter = 0
+		res.Message = "Houve um erro ao tentar conectar-se ao banco de dados."
+		return c.JSON(http.StatusInternalServerError, res)
+	}
+	defer client.Disconnect(context.TODO())
 
+	doc := struct {
+		Name string `bson:"name"`
+	}{Name: "Nome teste"}
+
+	col := client.Database("dexer").Collection("test")
+	_, err = col.InsertOne(context.TODO(), doc)
+	if err != nil {
+		log.Printf("Houve um erro ao tentar escrever no banco de dados: %e", err)
+
+		res.Message = "Não foi possível escrever no banco de dados."
 		return c.JSON(http.StatusInternalServerError, res)
 	}
 
-	defer rows.Close()
-
-	log.Print("Iterando resultados...")
-	for rows.Next() {
-		if err = rows.Scan(&res.Counter); err != nil {
-			log.Print("Não foi possível iterar o retorno do banco de dados na API getHomeApi.")
-			res.Counter = 0
-		}
-		rows.Close()
-	}
-
-	log.Print("Respondendo...")
-	res.Message = "Olá! Você está usando o Dexer by FERCEN."
-	return c.JSON(http.StatusOK, res)
-}
+	res.Message = "Documento criado."
+	return c.JSON(http.StatusCreated, res)
+} */

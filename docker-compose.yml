@@ -3,7 +3,7 @@ version: '3.8'
 services:
   dexer:
     depends_on: 
-      - postgres
+      - mongo
     build:
       context: .
     container_name: dexer-api
@@ -15,55 +15,30 @@ services:
     env_file:
       - .env
     environment:
-      - PG_USER=${PG_USER:-operator}
-      - PG_PASS=${PG_PASS:?Senha do banco de dados não definida}
-      - PG_DATABASE=${PG_DATABASE:-dexer}
       - DATABASE_URL=${DATABASE_URL:?URL de conexão não definida}
     deploy:
       restart_policy:
         condition: unless-stopped
 
-  postgres:
-    image: postgres:latest
-    container_name: postgres
-    hostname: postgres
+  mongo:
+    image: mongo:5.0.17
+    container_name: mongo
+    hostname: mongo
     networks:
       - network-bridge
     ports:
-      - 5432:5432
+      - 27017:27017
     environment:
-      - POSTGRES_USER=${PG_USER:-operator}
-      - POSTGRES_PASSWORD=${PG_PASS:?Senha do banco de dados não definida}
-      - POSTGRES_DB=${PG_DATABASE:-dexer}
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_USER:-operator}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASS:?URL de conexão não definida}
     volumes:
-      - postgres:/var/lib/postgresql/data
+      - mongo:/var/lib/mongodb/data
     deploy:
       restart_policy:
         condition: unless-stopped
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${PG_USER:-operator} -d ${PG_DATABASE:-dexer}"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-
-  migrate:
-    image: migrate/migrate:latest
-    container_name: migrate
-    hostname: migrate
-    networks:
-      - network-bridge
-    volumes:
-      - ./migrations/:/migrations
-    command: ["-path", "/migrations", "-database", "${DATABASE_URL:?URL de conexão não definida}", "up", "3"]
-    links:
-      - postgres
-    depends_on:
-      postgres:
-        condition: service_healthy
-    restart: on-failure
 
 volumes:
-  postgres:
+  mongo:
 
 networks:
   network-bridge:
