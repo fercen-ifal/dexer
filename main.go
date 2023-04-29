@@ -84,6 +84,8 @@ func service() http.Handler {
 	r.Use(middlewares.RequestIDHeader())
 	r.Use(middlewares.AppInfo())
 
+	r.HTTPErrorHandler = middlewares.ErrorHandler
+
 	v1Router := r.Group("/api/v1")
 	v1.RegisterRoutes(v1Router)
 
