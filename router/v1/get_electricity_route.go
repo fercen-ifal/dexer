@@ -21,18 +21,23 @@ func getElectricityApi(c echo.Context) error {
 		Message   string                   `json:"message"`
 		Documents []models.ElectricityBill `json:"documents"`
 	}{}
+	errRes := models.ErrorResponse{}
 
 	var query getElectricityApiQuery
 	err := c.Bind(&query)
 	if err != nil {
-		res.Message = "Houve um erro no processamento da query."
-		return c.JSON(http.StatusBadRequest, res)
+		errRes.Message = "Houve um erro no processamento da query."
+		errRes.Action = "Verifique os dados enviados e tente novamente."
+		errRes.ErrorCode = "API:ELECTRICITY:SEARCH:GET:QUERY_ERROR"
+		return c.JSON(http.StatusBadRequest, errRes)
 	}
 
 	documents, err := services.GetElectricityBills(services.GetElectricityBillsDTO{ServiceID: query.ServiceID, Year: query.Year, Month: query.Month})
 	if err != nil {
-		res.Message = "Houve um erro no processamento dos documentos."
-		return c.JSON(http.StatusInternalServerError, res)
+		errRes.Message = "Houve um erro no processamento dos documentos."
+		errRes.Action = "Tente novamente ou reporte o erro."
+		errRes.ErrorCode = "API:ELECTRICITY:SEARCH:GET:SERVICE_ERROR"
+		return c.JSON(http.StatusInternalServerError, errRes)
 	}
 
 	if len(documents) < 1 {

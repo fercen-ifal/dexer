@@ -11,9 +11,9 @@ import (
 )
 
 type GetElectricityBillsDTO struct {
-	ServiceID string `bson:"service_id"`
-	Year      uint16 `bson:"year"`
-	Month     uint8  `bson:"month"`
+	ServiceID string `bson:"service_id,omitempty"`
+	Year      uint16 `bson:"year,omitempty"`
+	Month     uint8  `bson:"month,omitempty"`
 }
 
 func GetElectricityBills(dto GetElectricityBillsDTO) ([]models.ElectricityBill, error) {
@@ -22,8 +22,6 @@ func GetElectricityBills(dto GetElectricityBillsDTO) ([]models.ElectricityBill, 
 		return nil, err
 	}
 	defer client.Disconnect(context.TODO())
-
-	log.Print(dto)
 
 	col := client.Database(constants.DATABASE_NAME).Collection(constants.ELECTRICITY_COL)
 	cursor, err := col.Find(context.TODO(), dto)
