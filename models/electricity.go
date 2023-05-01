@@ -2,14 +2,16 @@ package models
 
 // Implementação original em: https://github.com/fercen-ifal/fercen/blob/main/entities/Electricity.ts
 
+import "go.mongodb.org/mongo-driver/bson/primitive"
+
 type ElectricityBillItem struct {
 	Label string `bson:"label"`
 	Cost  int32  `bson:"cost"`
 }
 
 type ElectricityBill struct {
-	// Id do documento no banco de dados da aplicação principal
-	ServiceId        string                `bson:"service_id"`
+	ID               primitive.ObjectID    `bson:"_id"`
+	ServiceId        string                `bson:"service_id"` // Id do documento no banco de dados da aplicação principal
 	Year             uint16                `bson:"year"`
 	MonthIndex       uint8                 `bson:"month_index"`
 	PeakKWH          uint32                `bson:"peak_kWh"`

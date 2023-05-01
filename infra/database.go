@@ -17,7 +17,7 @@ func ConnectToDatabase() (*mongo.Client, error) {
 
 	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(uri))
 	if err != nil {
-		log.Printf("Não foi possível conectar-se ao banco de dados: %e", err)
+		log.Printf("Não foi possível conectar-se ao banco de dados: %s", err.Error())
 		return nil, err
 	}
 

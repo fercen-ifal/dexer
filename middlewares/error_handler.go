@@ -8,7 +8,7 @@ import (
 )
 
 func ErrorHandler(err error, c echo.Context) {
-	c.Logger().Errorf("Ocorreu um erro não tratado que foi pego pelo errorHandler: %e", err.Error())
+	c.Logger().Errorf("Ocorreu um erro não tratado que foi pego pelo errorHandler: %s", err.Error())
 
 	code := http.StatusInternalServerError
 	if he, ok := err.(*echo.HTTPError); ok {
