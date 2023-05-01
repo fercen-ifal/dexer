@@ -8,7 +8,7 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-type getElectricityApiQuery struct {
+type getElectricitySearchApiQuery struct {
 	ServiceID string `json:"serviceId" query:"service_id"`
 	Year      uint16 `json:"year" query:"year"`
 	Month     uint8  `json:"month" query:"month"`
@@ -16,14 +16,14 @@ type getElectricityApiQuery struct {
 	Page      uint16 `json:"page" query:"page"`
 }
 
-func getElectricityApi(c echo.Context) error {
+func getElectricitySearchApi(c echo.Context) error {
 	res := struct {
 		Message   string                   `json:"message"`
 		Documents []models.ElectricityBill `json:"documents"`
 	}{}
 	errRes := models.ErrorResponse{}
 
-	var query getElectricityApiQuery
+	var query getElectricitySearchApiQuery
 	err := c.Bind(&query)
 	if err != nil {
 		errRes.Message = "Houve um erro no processamento da query."
