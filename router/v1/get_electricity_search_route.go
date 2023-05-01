@@ -32,7 +32,15 @@ func getElectricitySearchApi(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, errRes)
 	}
 
-	documents, err := services.GetElectricityBills(services.GetElectricityBillsDTO{ServiceID: query.ServiceID, Year: query.Year, Month: query.Month})
+	documents, err := services.GetElectricityBills(services.GetElectricityBillsDTO{
+		ServiceID: query.ServiceID,
+		Year:      query.Year,
+		Month:     query.Month,
+	}, services.GetElectricityBillsFilters{
+		Limit: query.Limit,
+		Page:  query.Page,
+	})
+
 	if err != nil {
 		errRes.Message = "Houve um erro no processamento dos documentos."
 		errRes.Action = "Tente novamente ou reporte o erro."

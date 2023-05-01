@@ -8,6 +8,7 @@ import (
 	"github.com/fercen-ifal/dexer/infra"
 	"github.com/fercen-ifal/dexer/models"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type GetElectricityBillsDTO struct {
@@ -16,7 +17,12 @@ type GetElectricityBillsDTO struct {
 	Month     uint8  `bson:"month,omitempty"`
 }
 
-func GetElectricityBills(dto GetElectricityBillsDTO) ([]models.ElectricityBill, error) {
+type GetElectricityBillsFilters struct {
+	Limit     uint16 `bson:"limit,omitempty"`
+	Page      uint16 `bson:"page,omitempty"`
+}
+
+func GetElectricityBills(dto GetElectricityBillsDTO, filters GetElectricityBillsFilters) ([]models.ElectricityBill, error) {
 	client, err := infra.ConnectToDatabase()
 	if err != nil {
 		return nil, err
@@ -24,7 +30,17 @@ func GetElectricityBills(dto GetElectricityBillsDTO) ([]models.ElectricityBill, 
 	defer client.Disconnect(context.TODO())
 
 	col := client.Database(constants.DATABASE_NAME).Collection(constants.ELECTRICITY_COL)
-	cursor, err := col.Find(context.TODO(), dto)
+	opts := options.Find()
+
+	if filters.Limit > 0 {
+		opts.SetLimit(int64(filters.Limit))
+
+		if filters.Page > 0 {
+			opts.SetSkip(int64(filters.Page * filters.Limit))
+		}
+	}
+
+	cursor, err := col.Find(context.TODO(), dto, opts)
 	if err != nil {
 		if err == mongo.ErrNoDocuments {
 			return nil, err
