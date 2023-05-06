@@ -18,8 +18,8 @@ type GetElectricityBillsDTO struct {
 }
 
 type GetElectricityBillsFilters struct {
-	Limit     uint16 `bson:"limit,omitempty"`
-	Page      uint16 `bson:"page,omitempty"`
+	Limit uint16 `bson:"limit,omitempty"`
+	Page  uint16 `bson:"page,omitempty"`
 }
 
 func GetElectricityBills(dto GetElectricityBillsDTO, filters GetElectricityBillsFilters) ([]models.ElectricityBill, error) {
@@ -49,6 +49,7 @@ func GetElectricityBills(dto GetElectricityBillsDTO, filters GetElectricityBills
 		log.Printf("Houve um erro ao tentar filtrar documentos: %s", err.Error())
 		return nil, err
 	}
+	defer cursor.Close(context.TODO())
 
 	var documents []models.ElectricityBill
 	for cursor.Next(context.TODO()) {
@@ -66,6 +67,5 @@ func GetElectricityBills(dto GetElectricityBillsDTO, filters GetElectricityBills
 		return nil, err
 	}
 
-	defer cursor.Close(context.TODO())
 	return documents, nil
 }

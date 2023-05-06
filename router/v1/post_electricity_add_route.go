@@ -36,10 +36,12 @@ func postElectricityAddApi(c echo.Context) error {
 	}
 
 	exists, err := services.GetElectricityBills(services.GetElectricityBillsDTO{
-		ServiceID: body.Id,
-		Year:      body.Year,
-		Month:     body.Month,
-	}, services.GetElectricityBillsFilters{})
+		Year:  body.Year,
+		Month: body.Month,
+	}, services.GetElectricityBillsFilters{
+		Limit: 1,
+		Page:  0,
+	})
 
 	if err != nil {
 		errRes.Message = "Não foi possível verificar a existência do documento."
