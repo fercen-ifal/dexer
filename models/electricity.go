@@ -2,7 +2,12 @@ package models
 
 // Implementação original em: https://github.com/fercen-ifal/fercen/blob/main/entities/Electricity.ts
 
-import "go.mongodb.org/mongo-driver/bson/primitive"
+import (
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
+)
 
 type ElectricityBillItem struct {
 	Label string  `bson:"label" json:"label"`
@@ -22,4 +27,24 @@ type ElectricityBill struct {
 	OffpeakTotal     float32               `bson:"offpeak_total" json:"offpeakTotal"`
 	TotalPrice       float32               `bson:"total_price" json:"totalPrice"`
 	Items            []ElectricityBillItem `bson:"items" json:"items"`
+}
+
+func ElectricityCollectionIndexes() []mongo.IndexModel {
+	serviceIdIndex := mongo.IndexModel{
+		Keys:    bson.D{{Key: "service_id", Value: 1}},
+		Options: options.Index().SetName("ServiceID Index").SetUnique(true),
+	}
+
+	yearIndex := mongo.IndexModel{
+		Keys:    bson.D{{Key: "year", Value: 1}},
+		Options: options.Index().SetName("Year Index"),
+	}
+
+	monthIndex := mongo.IndexModel{
+		Keys:    bson.D{{Key: "month", Value: 1}},
+		Options: options.Index().SetName("Month Index"),
+	}
+
+	indexes := []mongo.IndexModel{serviceIdIndex, yearIndex, monthIndex}
+	return indexes
 }

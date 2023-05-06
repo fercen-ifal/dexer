@@ -9,7 +9,10 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/fercen-ifal/dexer/constants"
+	"github.com/fercen-ifal/dexer/infra"
 	"github.com/fercen-ifal/dexer/middlewares"
+	"github.com/fercen-ifal/dexer/models"
 	"github.com/fercen-ifal/dexer/router/v1"
 	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
@@ -28,6 +31,23 @@ func main() {
 	if port == "" {
 		log.Println("Variável PORT não possui valor definido!")
 		port = "8080"
+	}
+
+	// Cria os indexes das coleções
+
+	log.Println("Criando indexes das coleções do banco de dados...")
+
+	client, err := infra.ConnectToDatabase()
+	if err != nil {
+		log.Panic("Não foi possível criar os indexes por erro de conexão.")
+	}
+	defer client.Disconnect(context.TODO())
+
+	elecCol := client.Database(constants.DATABASE_NAME).Collection(constants.ELECTRICITY_COL)
+	_, err = elecCol.Indexes().CreateMany(context.TODO(), models.ElectricityCollectionIndexes())
+
+	if err != nil {
+		log.Printf("Não foi possível criar os indexes da coleção 'ELECTRICITY_COL': %s", err.Error())
 	}
 
 	// Inicia o servidor no modo graceful
