@@ -34,7 +34,7 @@ func AddElectricityBill(dto AddElectricityBillDTO) error {
 	col := client.Database(constants.DATABASE_NAME).Collection(constants.ELECTRICITY_COL)
 
 	_, err = col.InsertOne(context.TODO(), models.ElectricityBill{
-		ID: primitive.NewObjectID(),
+		ID:               primitive.NewObjectID(),
 		ServiceId:        dto.Id,
 		Year:             dto.Year,
 		Month:            dto.Month,
