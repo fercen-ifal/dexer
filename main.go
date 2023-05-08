@@ -94,14 +94,16 @@ func service() http.Handler {
 
 	r := echo.New()
 
-	// TODO: Add CORS policy
-
 	r.Use(middleware.RequestID())
 	r.Use(middleware.Logger())
 	r.Use(middleware.Recover())
 	r.Use(middleware.Gzip())
 	r.Use(middleware.RemoveTrailingSlash())
 	r.Use(middleware.CORS())
+	r.Use(middleware.SecureWithConfig(middleware.SecureConfig{
+		HSTSMaxAge:            3600,
+		ContentSecurityPolicy: "default-src 'self'",
+	}))
 	r.Use(middlewares.RequestIDHeader())
 	r.Use(middlewares.AppInfo())
 
