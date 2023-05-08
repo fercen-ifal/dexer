@@ -2,9 +2,11 @@ package v1
 
 import (
 	"net/http"
+	"sort"
 
 	"github.com/fercen-ifal/dexer/models"
 	"github.com/fercen-ifal/dexer/services"
+	"github.com/fercen-ifal/dexer/utils"
 	"github.com/labstack/echo/v4"
 )
 
@@ -40,6 +42,8 @@ func getElectricitySearchApi(c echo.Context) error {
 		Limit: query.Limit,
 		Page:  query.Page,
 	})
+
+	sort.Sort(utils.ElectricityBillsByYear(documents))
 
 	if err != nil {
 		errRes.Message = "Houve um erro no processamento dos documentos."

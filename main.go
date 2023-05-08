@@ -101,6 +101,7 @@ func service() http.Handler {
 	r.Use(middleware.Recover())
 	r.Use(middleware.Gzip())
 	r.Use(middleware.RemoveTrailingSlash())
+	r.Use(middleware.CORS())
 	r.Use(middlewares.RequestIDHeader())
 	r.Use(middlewares.AppInfo())
 
