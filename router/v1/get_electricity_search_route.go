@@ -16,6 +16,7 @@ type getElectricitySearchApiQuery struct {
 	Month     uint8  `json:"month" query:"month"`
 	Limit     uint16 `json:"limit" query:"limit"`
 	Page      uint16 `json:"page" query:"page"`
+	Sort	  string `json:"sort" query:"sort"`
 }
 
 func getElectricitySearchApi(c echo.Context) error {
@@ -43,7 +44,13 @@ func getElectricitySearchApi(c echo.Context) error {
 		Page:  query.Page,
 	})
 
-	sort.Sort(utils.ElectricityBillsByYear(documents))
+	if (query.sort == "months") {
+		sort.Sort(utils.ElectricityBillsByMonth(documents))
+	}
+	// Qualquer outra opção leva ao sort por ano
+	else {
+		sort.Sort(utils.ElectricityBillsByYear(documents))
+	}
 
 	if err != nil {
 		errRes.Message = "Houve um erro no processamento dos documentos."
